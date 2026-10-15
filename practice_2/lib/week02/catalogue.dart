@@ -36,9 +36,6 @@ class Library {
   Iterable<Book> get booksAfter2010 =>
       items.whereType<Book>().where((book) => book.year > 2010);
 
-  // Почему fold, а не reduce: reduce выбросит ошибку на пустой коллекции 
-  // и требует, чтобы тип аккумулятора совпадал с типом элемента коллекции (Book).
-  // fold позволяет использовать начальное значение (0) и другой тип (int/double).
   double get averagePageCount {
     final books = items.whereType<Book>();
     return books.isEmpty

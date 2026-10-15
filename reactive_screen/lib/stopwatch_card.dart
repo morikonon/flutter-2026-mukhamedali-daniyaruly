@@ -41,6 +41,7 @@ class _StopwatchCardState extends State<StopwatchCard> {
     });
   }
 
+  // Перед тем как окончательно уничтожить этот State, останови Timer.
   @override
   void dispose() {
     _timer?.cancel();
