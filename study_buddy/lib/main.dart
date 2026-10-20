@@ -24,6 +24,7 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) => MaterialApp(
     title: 'StudyBuddy',
+    debugShowCheckedModeBanner: false,
     theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: seedColor)),
     darkTheme: ThemeData(
       colorScheme: ColorScheme.fromSeed(

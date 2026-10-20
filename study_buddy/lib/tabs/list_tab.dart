@@ -60,6 +60,8 @@ class _ListTabState extends State<ListTab> {
   Widget build(BuildContext context) {
     final visible = _visible;
     return Column(
+      // Stretch: the chip row starts at the left edge on wide screens too.
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
