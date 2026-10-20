@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../config.dart';
 import '../models/session.dart';
 import '../models/subject.dart';
 import '../widgets/empty_state.dart';
@@ -130,7 +131,14 @@ class _ListTabState extends State<ListTab> {
                   actionLabel: 'Clear search',
                   onAction: _clearSearch,
                 )
-              : _buildList(visible),
+              // LayoutBuilder measures the space this tab really has,
+              // not the whole screen: a list on phones, a grid when wide.
+              : LayoutBuilder(
+                  builder: (context, constraints) =>
+                      constraints.maxWidth < gridBreakpoint
+                      ? _buildList(visible)
+                      : _buildGrid(visible, constraints.maxWidth),
+                ),
         ),
       ],
     );
@@ -141,6 +149,20 @@ class _ListTabState extends State<ListTab> {
     padding: const EdgeInsets.fromLTRB(8, 0, 8, 88),
     itemCount: visible.length,
     separatorBuilder: (_, _) => const SizedBox(height: 4),
+    itemBuilder: (_, i) => _card(visible[i]),
+  );
+
+  Widget _buildGrid(List<Session> visible, double width) => GridView.builder(
+    padding: const EdgeInsets.fromLTRB(8, 0, 8, 88),
+    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+      // Rounding up keeps every cell at most maxCellWidth wide.
+      crossAxisCount: (width / maxCellWidth).ceil(),
+      // Tall enough for a two-line title plus the date line.
+      mainAxisExtent: 128,
+      crossAxisSpacing: 4,
+      mainAxisSpacing: 4,
+    ),
+    itemCount: visible.length,
     itemBuilder: (_, i) => _card(visible[i]),
   );
 
