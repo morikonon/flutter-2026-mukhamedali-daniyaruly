@@ -147,7 +147,9 @@ class _ShellState extends State<Shell> {
           ProfileTab(
             profile: _profile,
             sessions: _sessions,
+            themeMode: widget.themeMode,
             onProfileChanged: _changeProfile,
+            onThemeModeChanged: widget.onThemeModeChanged,
           ),
         ],
       ),

@@ -25,6 +25,12 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) => MaterialApp(
     title: 'StudyBuddy',
     theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: seedColor)),
+    darkTheme: ThemeData(
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: seedColor,
+        brightness: Brightness.dark,
+      ),
+    ),
     themeMode: _themeMode,
     initialRoute: Routes.home,
     routes: {

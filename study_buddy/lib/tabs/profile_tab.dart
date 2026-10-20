@@ -12,12 +12,16 @@ class ProfileTab extends StatefulWidget {
     super.key,
     required this.profile,
     required this.sessions,
+    required this.themeMode,
     required this.onProfileChanged,
+    required this.onThemeModeChanged,
   });
 
   final Profile profile;
   final List<Session> sessions;
+  final ThemeMode themeMode;
   final ValueChanged<Profile> onProfileChanged;
+  final ValueChanged<ThemeMode> onThemeModeChanged;
 
   @override
   State<ProfileTab> createState() => _ProfileTabState();
@@ -131,7 +135,28 @@ class _ProfileTabState extends State<ProfileTab> {
           'You are on $lists ${lists == 1 ? 'list' : 'lists'}',
           style: text.titleMedium,
         ),
+        const SizedBox(height: 24),
+        Text('Theme', style: text.titleSmall),
+        const SizedBox(height: 8),
+        // The mode lives in MyApp; these chips only report the choice up.
+        Wrap(
+          spacing: 8,
+          children: [
+            for (final mode in ThemeMode.values)
+              ChoiceChip(
+                label: Text(_themeLabel(mode)),
+                selected: widget.themeMode == mode,
+                onSelected: (_) => widget.onThemeModeChanged(mode),
+              ),
+          ],
+        ),
       ],
     );
   }
+
+  String _themeLabel(ThemeMode mode) => switch (mode) {
+    ThemeMode.system => 'System',
+    ThemeMode.light => 'Light',
+    ThemeMode.dark => 'Dark',
+  };
 }
