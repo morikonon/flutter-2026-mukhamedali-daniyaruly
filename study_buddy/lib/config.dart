@@ -17,3 +17,5 @@ const maxSeats = 500;
 
 const minTitleLength = 3;
 const maxTitleLength = 60;
+
+const maxDescriptionLength = 300;

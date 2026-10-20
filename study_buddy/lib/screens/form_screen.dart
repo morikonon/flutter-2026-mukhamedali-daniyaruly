@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../config.dart';
 import '../models/session.dart';
 import '../models/subject.dart';
 import '../routes.dart';
@@ -42,6 +43,9 @@ class _FormScreenState extends State<FormScreen> {
   late final TextEditingController _description;
   final _date = TextEditingController();
   final _time = TextEditingController();
+  final _locationFocus = FocusNode();
+  final _seatsFocus = FocusNode();
+  final _descriptionFocus = FocusNode();
 
   // A new session starts with these empty, so "required" means something.
   Subject? _subject;
@@ -79,6 +83,9 @@ class _FormScreenState extends State<FormScreen> {
   void dispose() {
     for (final c in [_title, _location, _seats, _description, _date, _time]) {
       c.dispose();
+    }
+    for (final f in [_locationFocus, _seatsFocus, _descriptionFocus]) {
+      f.dispose();
     }
     super.dispose();
   }
@@ -178,17 +185,55 @@ class _FormScreenState extends State<FormScreen> {
     Navigator.of(context).pop(session);
   }
 
-  String? _validateTitle(String? value) =>
-      (value ?? '').trim().isEmpty ? 'Enter a title' : null;
+  String? _validateTitle(String? value) {
+    final title = (value ?? '').trim();
+    if (title.length < minTitleLength) {
+      return 'At least $minTitleLength characters';
+    }
+    if (title.length > maxTitleLength) {
+      return 'At most $maxTitleLength characters';
+    }
+    return null;
+  }
 
-  String? _validateLocation(String? value) =>
-      (value ?? '').trim().isEmpty ? 'Enter a location' : null;
+  String? _validateLocation(String? value) {
+    final location = (value ?? '').trim();
+    if (location.isEmpty) {
+      return _isOnline ? 'Enter a meeting link' : 'Enter a location';
+    }
+    if (_isOnline && !location.contains('://')) {
+      return 'A link looks like https://…';
+    }
+    return null;
+  }
 
-  String? _validateSeats(String? value) =>
-      int.tryParse((value ?? '').trim()) == null ? 'A whole number' : null;
+  String? _validateSeats(String? value) {
+    final seats = int.tryParse((value ?? '').trim());
+    if (seats == null) return 'A whole number';
+    if (seats < minSeats || seats > maxSeats) {
+      return 'Between $minSeats and $maxSeats';
+    }
+    // Editing: cannot drop below the people already on the list.
+    if (seats < _base.count) return '${_base.count} already joined';
+    return null;
+  }
 
-  String? _validateTime(String? _) =>
-      _timeOfDay == null ? 'Choose a time' : null;
+  String? _validateTime(String? _) {
+    if (_timeOfDay == null) return 'Choose a time';
+    final start = _startsAt;
+    if (_isNew && start != null && !start.isAfter(DateTime.now())) {
+      return 'Must be in the future';
+    }
+    return null;
+  }
+
+  String? _validateDescription(String? value) =>
+      (value ?? '').length > maxDescriptionLength
+      ? 'At most $maxDescriptionLength characters'
+      : null;
+
+  void _hideKeyboard(PointerDownEvent _) =>
+      FocusManager.instance.primaryFocus?.unfocus();
 
   @override
   Widget build(BuildContext context) {
@@ -220,7 +265,11 @@ class _FormScreenState extends State<FormScreen> {
               children: [
                 TextFormField(
                   controller: _title,
+                  maxLength: maxTitleLength,
                   decoration: const InputDecoration(labelText: 'Title'),
+                  textInputAction: TextInputAction.next,
+                  onFieldSubmitted: (_) => _locationFocus.requestFocus(),
+                  onTapOutside: _hideKeyboard,
                   validator: _validateTitle,
                 ),
                 const SizedBox(height: 8),
@@ -247,15 +296,27 @@ class _FormScreenState extends State<FormScreen> {
                 ),
                 TextFormField(
                   controller: _location,
+                  focusNode: _locationFocus,
                   decoration: InputDecoration(
                     labelText: _isOnline ? 'Meeting link' : 'Location',
                   ),
+                  keyboardType: _isOnline
+                      ? TextInputType.url
+                      : TextInputType.text,
+                  textInputAction: TextInputAction.next,
+                  onFieldSubmitted: (_) => _seatsFocus.requestFocus(),
+                  onTapOutside: _hideKeyboard,
                   validator: _validateLocation,
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _seats,
+                  focusNode: _seatsFocus,
                   decoration: const InputDecoration(labelText: 'Seats'),
+                  keyboardType: TextInputType.number,
+                  textInputAction: TextInputAction.next,
+                  onFieldSubmitted: (_) => _descriptionFocus.requestFocus(),
+                  onTapOutside: _hideKeyboard,
                   validator: _validateSeats,
                 ),
                 const SizedBox(height: 12),
@@ -271,6 +332,7 @@ class _FormScreenState extends State<FormScreen> {
                           suffixIcon: Icon(Icons.calendar_today),
                         ),
                         onTap: _pickDate,
+                        onTapOutside: _hideKeyboard,
                         validator: (_) => _day == null ? 'Choose a date' : null,
                       ),
                     ),
@@ -284,6 +346,7 @@ class _FormScreenState extends State<FormScreen> {
                           suffixIcon: Icon(Icons.schedule),
                         ),
                         onTap: _pickTime,
+                        onTapOutside: _hideKeyboard,
                         validator: _validateTime,
                       ),
                     ),
@@ -292,11 +355,18 @@ class _FormScreenState extends State<FormScreen> {
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _description,
+                  focusNode: _descriptionFocus,
                   decoration: const InputDecoration(
                     labelText: 'Description (optional)',
                   ),
                   minLines: 1,
                   maxLines: 4,
+                  // Text, not multiline: Enter means "done", not a new line.
+                  keyboardType: TextInputType.text,
+                  textInputAction: TextInputAction.done,
+                  onFieldSubmitted: (_) => _save(),
+                  onTapOutside: _hideKeyboard,
+                  validator: _validateDescription,
                 ),
                 const SizedBox(height: 24),
                 FilledButton(
