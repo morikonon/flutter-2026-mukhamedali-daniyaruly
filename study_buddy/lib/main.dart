@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 
-import 'data/seed.dart';
-import 'models/session.dart';
-import 'tabs/list_tab.dart';
+import 'routes.dart';
+import 'shell.dart';
 
 // The only literal colour in lib/: every other colour comes from the scheme.
 const seedColor = Colors.indigo;
 
 void main() => runApp(const MyApp());
 
-/// Temporary for step 2: holds the sessions until the shell takes over.
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
@@ -18,28 +16,22 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  List<Session> _sessions = seedItems();
+  // Above MaterialApp, so a change rebuilds the theme of the whole app.
+  ThemeMode _themeMode = ThemeMode.system;
 
-  void _toggleFavourite(Session session) => setState(() {
-    _sessions = _sessions
-        .map(
-          (s) =>
-              s.id == session.id ? s.copyWith(isFavourite: !s.isFavourite) : s,
-        )
-        .toList();
-  });
+  void _setThemeMode(ThemeMode mode) => setState(() => _themeMode = mode);
 
   @override
   Widget build(BuildContext context) => MaterialApp(
     title: 'StudyBuddy',
     theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: seedColor)),
-    home: Scaffold(
-      appBar: AppBar(title: const Text('Sessions')),
-      body: ListTab(
-        sessions: _sessions,
-        onOpen: (_) {},
-        onToggleFavourite: _toggleFavourite,
-      ),
-    ),
+    themeMode: _themeMode,
+    initialRoute: Routes.home,
+    routes: {
+      Routes.home: (_) =>
+          Shell(themeMode: _themeMode, onThemeModeChanged: _setThemeMode),
+    },
+    onGenerateRoute: generateRoute,
+    onUnknownRoute: unknownRoute,
   );
 }
