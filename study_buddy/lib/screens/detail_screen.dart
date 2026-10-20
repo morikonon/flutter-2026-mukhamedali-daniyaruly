@@ -8,7 +8,7 @@ import '../utils/format.dart';
 import '../widgets/confirm_dialog.dart';
 import '../widgets/empty_state.dart';
 
-enum _MenuAction { delete }
+enum _MenuAction { edit, delete }
 
 /// Pushed from a card. Works on a local copy and reports every change
 /// to the shell through the callbacks in [DetailArgs].
@@ -88,6 +88,13 @@ class _DetailScreenState extends State<DetailScreen> {
     );
   }
 
+  Future<void> _edit() async {
+    final edited = await Navigator.of(context)
+        .pushNamed<Session>(Routes.form, arguments: FormArgs(_session));
+    if (!mounted || edited == null) return;
+    _update(edited);
+  }
+
   Future<void> _delete() async {
     final ok = await confirm(
       context,
@@ -111,11 +118,14 @@ class _DetailScreenState extends State<DetailScreen> {
             PopupMenuButton<_MenuAction>(
               onSelected: (action) {
                 switch (action) {
+                  case _MenuAction.edit:
+                    _edit();
                   case _MenuAction.delete:
                     _delete();
                 }
               },
               itemBuilder: (_) => const [
+                PopupMenuItem(value: _MenuAction.edit, child: Text('Edit')),
                 PopupMenuItem(value: _MenuAction.delete, child: Text('Delete')),
               ],
             ),

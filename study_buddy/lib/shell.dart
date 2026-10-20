@@ -47,6 +47,13 @@ class _ShellState extends State<Shell> {
 
   void _changeProfile(Profile profile) => setState(() => _profile = profile);
 
+  Future<void> _openForm() async {
+    final created = await Navigator.of(context)
+        .pushNamed<Session>(Routes.form, arguments: const FormArgs(null));
+    if (!mounted || created == null) return;
+    setState(() => _sessions = [..._sessions, created]);
+  }
+
   void _openDetail(Session session) {
     Navigator.of(context).pushNamed(
       Routes.detail,
@@ -144,6 +151,13 @@ class _ShellState extends State<Shell> {
           ),
         ],
       ),
+      floatingActionButton: _tab == 0
+          ? FloatingActionButton(
+              tooltip: 'New session',
+              onPressed: _openForm,
+              child: const Icon(Icons.add),
+            )
+          : null,
       bottomNavigationBar: NavigationBar(
         selectedIndex: _tab,
         onDestinationSelected: _openTab,
