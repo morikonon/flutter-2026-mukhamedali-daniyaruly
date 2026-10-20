@@ -160,27 +160,23 @@ class _DetailScreenState extends State<DetailScreen> {
       children: [
         Text(_session.title, style: text.headlineSmall),
         const SizedBox(height: 8),
-        ListTile(
-          leading: const Icon(Icons.event),
-          title: Text(formatDateTime(_session.startsAt)),
-          subtitle: const Text('Date'),
+        _InfoRow(
+          icon: Icons.event,
+          value: formatDateTime(_session.startsAt),
+          label: 'Date',
         ),
-        ListTile(
-          leading: Icon(_session.isOnline ? Icons.link : Icons.place),
-          title: Text(_session.location),
-          subtitle: Text(_session.isOnline ? 'Meeting link' : 'Location'),
+        _InfoRow(
+          icon: _session.isOnline ? Icons.link : Icons.place,
+          value: _session.location,
+          label: _session.isOnline ? 'Meeting link' : 'Location',
         ),
-        ListTile(
-          leading: const Icon(Icons.event_seat),
-          title: Text('$taken of ${_session.seats} taken'),
-          subtitle: Text('$free free'),
+        _InfoRow(
+          icon: Icons.event_seat,
+          value: '$taken of ${_session.seats} taken',
+          label: '$free free',
         ),
         if (description != null)
-          ListTile(
-            leading: const Icon(Icons.notes),
-            title: Text(description),
-            subtitle: const Text('Description'),
-          ),
+          _InfoRow(icon: Icons.notes, value: description, label: 'Description'),
         const SizedBox(height: 16),
         _buildPrimaryAction(),
       ],
@@ -226,8 +222,13 @@ class _DetailScreenState extends State<DetailScreen> {
         final name = names[i];
         final isMe = name.trim().toLowerCase() == _me.toLowerCase();
         return ListTile(
-          leading: CircleAvatar(child: Text(name.characters.first)),
-          title: Text(isMe ? 'You' : name),
+          title: Row(
+            children: [
+              CircleAvatar(child: Text(name.characters.first)),
+              const SizedBox(width: 16),
+              Expanded(child: Text(isMe ? 'You' : name)),
+            ],
+          ),
           tileColor: isMe ? colors.primaryContainer : null,
           textColor: isMe ? colors.onPrimaryContainer : null,
         );
@@ -281,6 +282,49 @@ class _Header extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// One line of the About tab: an icon, the value and a small label.
+class _InfoRow extends StatelessWidget {
+  const _InfoRow({
+    required this.icon,
+    required this.value,
+    required this.label,
+  });
+
+  final IconData icon;
+  final String value;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final text = Theme.of(context).textTheme;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: colors.onSurfaceVariant),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(value, style: text.bodyLarge),
+                Text(
+                  label,
+                  style: text.bodySmall?.copyWith(
+                    color: colors.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

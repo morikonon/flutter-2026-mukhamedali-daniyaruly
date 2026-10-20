@@ -116,14 +116,15 @@ class _ShellState extends State<Shell> {
                 child: Text('StudyBuddy', style: text.headlineSmall),
               ),
             ),
+            // Icons on the right: no back-arrow slot is touched anywhere.
             ListTile(
-              leading: const Icon(Icons.info_outline),
               title: const Text('About'),
+              trailing: const Icon(Icons.info_outline),
               onTap: _showAbout,
             ),
             ListTile(
-              leading: const Icon(Icons.restart_alt),
               title: const Text('Reset data'),
+              trailing: const Icon(Icons.restart_alt),
               onTap: _resetData,
             ),
           ],
