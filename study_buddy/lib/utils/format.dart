@@ -21,8 +21,11 @@ String _twoDigits(int n) => n.toString().padLeft(2, '0');
 String formatDate(DateTime d) => '${d.day} ${_months[d.month - 1]}';
 
 /// 09:05
-String formatTime(DateTime d) =>
-    '${_twoDigits(d.hour)}:${_twoDigits(d.minute)}';
+String formatTime(DateTime d) => formatClock(d.hour, d.minute);
+
+/// 09:05 from an hour and a minute (the time picker gives these).
+String formatClock(int hour, int minute) =>
+    '${_twoDigits(hour)}:${_twoDigits(minute)}';
 
 /// 18 Oct, 09:05
 String formatDateTime(DateTime d) => '${formatDate(d)}, ${formatTime(d)}';

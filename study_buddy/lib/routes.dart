@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'models/session.dart';
 import 'screens/detail_screen.dart';
+import 'screens/form_screen.dart';
 
 /// The only place in lib/ with route strings.
 abstract final class Routes {
@@ -43,6 +44,15 @@ Route<dynamic>? generateRoute(RouteSettings settings) {
         return MaterialPageRoute<void>(
           settings: settings,
           builder: (_) => DetailScreen(args: args),
+        );
+      }
+    case Routes.form:
+      if (args is FormArgs) {
+        // Typed <Session> to match pushNamed<Session>: the form answers
+        // with the saved session.
+        return MaterialPageRoute<Session>(
+          settings: settings,
+          builder: (_) => FormScreen(args: args),
         );
       }
   }
