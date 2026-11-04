@@ -1,0 +1,38 @@
+import 'package:flutter/foundation.dart';
+
+import 'book.dart';
+
+class Cart extends ChangeNotifier {
+  final Map<Book, int> _qty = {};
+
+  List<Book> get items => List.unmodifiable(_qty.keys);
+  int get count => _qty.length;
+  int get total =>
+      _qty.entries.fold(0, (sum, e) => sum + e.key.price * e.value);
+
+  int qtyOf(Book b) => _qty[b] ?? 0;
+  bool contains(Book b) => _qty.containsKey(b);
+
+  /// Returns false and changes nothing when [b] is already in the cart.
+  bool add(Book b) {
+    if (contains(b)) return false;
+    _qty[b] = 1;
+    notifyListeners();
+    return true;
+  }
+
+  void increment(Book b) {
+    _qty.update(b, (q) => q + 1);
+    notifyListeners();
+  }
+
+  void remove(Book b) {
+    _qty.remove(b);
+    notifyListeners();
+  }
+
+  void clear() {
+    _qty.clear();
+    notifyListeners();
+  }
+}
