@@ -1,0 +1,14 @@
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  exclude:
+    - build/**
+    - android/**
+    - ios/**
+    - web/**
+    - macos/**
+
+linter:
+  rules:
+    # Future, который никто не await-ит, теряет свою ошибку — анализатор это ловит.
+    unawaited_futures: true
